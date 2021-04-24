@@ -9,7 +9,7 @@ input_stream: "input_video"
 # CPU image. (ImageFrame)
 output_stream: "output_video"
 # Face landmarks with iris. (NormalizedLandmarkList)
-output_stream: "face_landmarks_with_iris"
+output_stream: "face_landmarks_with_iris_smoothed"
 
 # Defines how many faces to detect. Iris tracking currently only handles one
 # face (left and right eye), and therefore this should always be set to 1.
@@ -139,4 +139,27 @@ node {
   input_stream: "updated_face_landmarks"
   input_stream: "iris_landmarks"
   output_stream: "face_landmarks_with_iris"
+}
+
+# Extracts image size from the input images.
+node {
+  calculator: "ImagePropertiesCalculator"
+  input_stream: "IMAGE:input_video"
+  output_stream: "SIZE:image_size"
+}
+
+# Smoothes landmarks in order to reduce jitter.
+node {
+  calculator: "LandmarksSmoothingCalculator"
+  input_stream: "NORM_LANDMARKS:face_landmarks_with_iris"
+  input_stream: "IMAGE_SIZE:image_size"
+  output_stream: "NORM_FILTERED_LANDMARKS:face_landmarks_with_iris_smoothed"
+  node_options: {
+    [type.googleapis.com/mediapipe.LandmarksSmoothingCalculatorOptions] {
+      velocity_filter: {
+        window_size: 5
+        velocity_scale: 10.0
+      }
+    }
+  }
 }

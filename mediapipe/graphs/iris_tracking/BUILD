@@ -47,6 +47,8 @@ cc_library(
         "//mediapipe/graphs/iris_tracking/subgraphs:iris_renderer_cpu",
         "//mediapipe/modules/face_landmark:face_landmark_front_cpu",
         "//mediapipe/modules/iris_landmark:iris_landmark_left_and_right_cpu",
+
+        "//mediapipe/calculators/util:landmarks_smoothing_calculator",
     ],
 )
 
@@ -62,6 +64,8 @@ cc_library(
         "//mediapipe/graphs/iris_tracking/subgraphs:iris_renderer_cpu",
         "//mediapipe/modules/face_landmark:face_landmark_front_cpu",
         "//mediapipe/modules/iris_landmark:iris_landmark_left_and_right_cpu",
+
+        "//mediapipe/calculators/util:landmarks_smoothing_calculator",
     ],
 )
 
@@ -75,6 +79,8 @@ cc_library(
         "//mediapipe/graphs/iris_tracking/subgraphs:iris_and_depth_renderer_gpu",
         "//mediapipe/modules/face_landmark:face_landmark_front_gpu",
         "//mediapipe/modules/iris_landmark:iris_landmark_left_and_right_gpu",
+
+        "//mediapipe/calculators/util:landmarks_smoothing_calculator",
     ],
 )
 
@@ -83,4 +89,11 @@ mediapipe_binary_graph(
     graph = "iris_tracking_gpu.pbtxt",
     output_name = "iris_tracking_gpu.binarypb",
     deps = [":iris_tracking_gpu_deps"],
+)
+
+mediapipe_binary_graph(
+    name = "iris_tracking_cpu_binary_graph",
+    graph = "iris_tracking_cpu.pbtxt",
+    output_name = "iris_tracking_cpu.binarypb",
+    deps = [":iris_tracking_cpu_deps"],
 )
