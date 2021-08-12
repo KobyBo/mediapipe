@@ -79,19 +79,32 @@ to visualize its associated subgraphs, please see
 ## Pose Estimation Quality
 
 To evaluate the quality of our [models](./models.md#pose) against other
-well-performing publicly available solutions, we use a validation dataset,
-consisting of 1k images with diverse Yoga, HIIT, and Dance postures. Each image
+well-performing publicly available solutions, we use three different validation
+datasets, representing different verticals: Yoga, Dance and HIIT. Each image
 contains only a single person located 2-4 meters from the camera. To be
 consistent with other solutions, we perform evaluation only for 17 keypoints
 from [COCO topology](https://cocodataset.org/#keypoints-2020).
 
-Method                                                                                                | [mAP](https://cocodataset.org/#keypoints-eval) | [PCK@0.2](https://github.com/cbsudux/Human-Pose-Estimation-101) | [FPS](https://en.wikipedia.org/wiki/Frame_rate), Pixel 3 [TFLite GPU](https://www.tensorflow.org/lite/performance/gpu_advanced) | [FPS](https://en.wikipedia.org/wiki/Frame_rate), MacBook Pro (15-inch, 2017)
------------------------------------------------------------------------------------------------------ | ---------------------------------------------: | --------------------------------------------------------------: | ------------------------------------------------------------------------------------------------------------------------------: | ---------------------------------------------------------------------------:
-BlazePose.Lite                                                                                        | 49.1                                           | 91.7                                                            | 49                                                                                                                              | 40
-BlazePose.Full                                                                                        | 64.5                                           | 95.8                                                            | 40                                                                                                                              | 37
-BlazePose.Heavy                                                                                       | 70.9                                           | 97.0                                                            | 19                                                                                                                              | 26
-[AlphaPose.ResNet50](https://github.com/MVIG-SJTU/AlphaPose)                                          | 57.6                                           | 93.1                                                            | N/A                                                                                                                             | N/A
-[Apple Vision](https://developer.apple.com/documentation/vision/detecting_human_body_poses_in_images) | 37.0                                           | 85.3                                                            | N/A                                                                                                                             | N/A
+Method                                                                                                | Yoga <br/> [`mAP`] | Yoga <br/> [`PCK@0.2`] | Dance <br/> [`mAP`] | Dance <br/> [`PCK@0.2`] | HIIT <br/> [`mAP`] | HIIT <br/> [`PCK@0.2`]
+----------------------------------------------------------------------------------------------------- | -----------------: | ---------------------: | ------------------: | ----------------------: | -----------------: | ---------------------:
+BlazePose.Heavy                                                                                       | 68.1               | **96.4**               | 73.0                | **97.2**                | 74.0               | **97.5**
+BlazePose.Full                                                                                        | 62.6               | **95.5**               | 67.4                | **96.3**                | 68.0               | **95.7**
+BlazePose.Lite                                                                                        | 45.0               | **90.2**               | 53.6                | **92.5**                | 53.8               | **93.5**
+[AlphaPose.ResNet50](https://github.com/MVIG-SJTU/AlphaPose)                                          | 63.4               | **96.0**               | 57.8                | **95.5**                | 63.4               | **96.0**
+[Apple.Vision](https://developer.apple.com/documentation/vision/detecting_human_body_poses_in_images) | 32.8               | **82.7**               | 36.4                | **91.4**                | 44.5               | **88.6**
+
+![pose_tracking_pck_chart.png](../images/mobile/pose_tracking_pck_chart.png) |
+:--------------------------------------------------------------------------: |
+*Fig 2. Quality evaluation in [`PCK@0.2`].*                                  |
+
+We designed our models specifically for live perception use cases, so all of
+them work in real-time on the majority of modern devices.
+
+Method          | Latency <br/> Pixel 3 [TFLite GPU](https://www.tensorflow.org/lite/performance/gpu_advanced) | Latency <br/> MacBook Pro (15-inch 2017)
+--------------- | -------------------------------------------------------------------------------------------: | ---------------------------------------:
+BlazePose.Heavy | 53 ms                                                                                        | 38 ms
+BlazePose.Full  | 25 ms                                                                                        | 27 ms
+BlazePose.Lite  | 20 ms                                                                                        | 25 ms
 
 ## Models
 
@@ -109,7 +122,7 @@ hip midpoints.
 
 ![pose_tracking_detector_vitruvian_man.png](../images/mobile/pose_tracking_detector_vitruvian_man.png) |
 :----------------------------------------------------------------------------------------------------: |
-*Fig 2. Vitruvian man aligned via two virtual keypoints predicted by BlazePose detector in addition to the face bounding box.* |
+*Fig 3. Vitruvian man aligned via two virtual keypoints predicted by BlazePose detector in addition to the face bounding box.* |
 
 ### Pose Landmark Model (BlazePose GHUM 3D)
 
@@ -124,7 +137,7 @@ this [paper](https://arxiv.org/abs/2006.10204) and
 
 ![pose_tracking_full_body_landmarks.png](../images/mobile/pose_tracking_full_body_landmarks.png) |
 :----------------------------------------------------------------------------------------------: |
-*Fig 3. 33 pose landmarks.*                                                                      |
+*Fig 4. 33 pose landmarks.*                                                                      |
 
 ## Solution APIs
 
@@ -174,22 +187,35 @@ Naming style may differ slightly across platforms/languages.
 
 #### pose_landmarks
 
-A list of pose landmarks. Each lanmark consists of the following:
+A list of pose landmarks. Each landmark consists of the following:
 
 *   `x` and `y`: Landmark coordinates normalized to `[0.0, 1.0]` by the image
     width and height respectively.
 *   `z`: Represents the landmark depth with the depth at the midpoint of hips
     being the origin, and the smaller the value the closer the landmark is to
     the camera. The magnitude of `z` uses roughly the same scale as `x`.
-
 *   `visibility`: A value in `[0.0, 1.0]` indicating the likelihood of the
     landmark being visible (present and not occluded) in the image.
+
+#### pose_world_landmarks
+
+*Fig 5. Example of MediaPipe Pose real-world 3D coordinates.* |
+:-----------------------------------------------------------: |
+<video autoplay muted loop preload style="height: auto; width: 480px"><source src="../images/mobile/pose_world_landmarks.mp4" type="video/mp4"></video> |
+
+Another list of pose landmarks in world coordinates. Each landmark consists of
+the following:
+
+*   `x`, `y` and `z`: Real-world 3D coordinates in meters with the origin at the
+    center between hips.
+*   `visibility`: Identical to that defined in the corresponding
+    [pose_landmarks](#pose_landmarks).
 
 ### Python Solution API
 
 Please first follow general [instructions](../getting_started/python.md) to
 install MediaPipe Python package, then learn more in the companion
-[Python Colab](#resources) and the following usage example.
+[Python Colab](#resources) and the usage example below.
 
 Supported configuration options:
 
@@ -206,11 +232,12 @@ mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
 # For static images:
+IMAGE_FILES = []
 with mp_pose.Pose(
     static_image_mode=True,
     model_complexity=2,
     min_detection_confidence=0.5) as pose:
-  for idx, file in enumerate(file_list):
+  for idx, file in enumerate(IMAGE_FILES):
     image = cv2.imread(file)
     image_height, image_width, _ = image.shape
     # Convert the BGR image to RGB before processing.
@@ -228,6 +255,9 @@ with mp_pose.Pose(
     mp_drawing.draw_landmarks(
         annotated_image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
     cv2.imwrite('/tmp/annotated_image' + str(idx) + '.png', annotated_image)
+    # Plot pose world landmarks.
+    mp_drawing.plot_landmarks(
+        results.pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
 
 # For webcam input:
 cap = cv2.VideoCapture(0)
@@ -280,6 +310,7 @@ Supported configuration options:
   <meta charset="utf-8">
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/control_utils_3d.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
 </head>
@@ -298,8 +329,15 @@ Supported configuration options:
 const videoElement = document.getElementsByClassName('input_video')[0];
 const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const canvasCtx = canvasElement.getContext('2d');
+const landmarkContainer = document.getElementsByClassName('landmark-grid-container')[0];
+const grid = new LandmarkGrid(landmarkContainer);
 
 function onResults(results) {
+  if (!results.poseLandmarks) {
+    grid.updateLandmarks([]);
+    return;
+  }
+
   canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
   canvasCtx.drawImage(
@@ -309,6 +347,8 @@ function onResults(results) {
   drawLandmarks(canvasCtx, results.poseLandmarks,
                 {color: '#FF0000', lineWidth: 2});
   canvasCtx.restore();
+
+  grid.updateLandmarks(results.poseWorldLandmarks);
 }
 
 const pose = new Pose({locateFile: (file) => {
@@ -384,3 +424,6 @@ on how to build MediaPipe examples.
 *   [Models and model cards](./models.md#pose)
 *   [Web demo](https://code.mediapipe.dev/codepen/pose)
 *   [Python Colab](https://mediapipe.page.link/pose_py_colab)
+
+[`mAP`]: https://cocodataset.org/#keypoints-eval
+[`PCK@0.2`]: https://github.com/cbsudux/Human-Pose-Estimation-101

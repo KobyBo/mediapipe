@@ -14,6 +14,7 @@
 
 """MediaPipe Solutions Python API."""
 
+import mediapipe.python.solutions.drawing_styles
 import mediapipe.python.solutions.drawing_utils
 import mediapipe.python.solutions.face_detection
 import mediapipe.python.solutions.face_mesh
@@ -22,3 +23,4 @@ import mediapipe.python.solutions.hands
 import mediapipe.python.solutions.holistic
 import mediapipe.python.solutions.objectron
 import mediapipe.python.solutions.pose
+import mediapipe.python.solutions.selfie_segmentation

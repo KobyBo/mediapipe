@@ -35,8 +35,8 @@ http_archive(
 
 http_archive(
     name = "rules_cc",
-    strip_prefix = "rules_cc-master",
-    urls = ["https://github.com/bazelbuild/rules_cc/archive/master.zip"],
+    strip_prefix = "rules_cc-main",
+    urls = ["https://github.com/bazelbuild/rules_cc/archive/main.zip"],
 )
 
 http_archive(
@@ -53,26 +53,19 @@ rules_foreign_cc_dependencies()
 all_content = """filegroup(name = "all", srcs = glob(["**"]), visibility = ["//visibility:public"])"""
 
 # GoogleTest/GoogleMock framework. Used by most unit-tests.
-# Last updated 2020-06-30.
+# Last updated 2021-07-02.
 http_archive(
     name = "com_google_googletest",
-    urls = ["https://github.com/google/googletest/archive/aee0f9d9b5b87796ee8a0ab26b7587ec30e8858e.zip"],
-    patches = [
-        # fix for https://github.com/google/googletest/issues/2817
-        "@//third_party:com_google_googletest_9d580ea80592189e6d44fa35bcf9cdea8bf620d6.diff"
-    ],
-    patch_args = [
-        "-p1",
-    ],
-    strip_prefix = "googletest-aee0f9d9b5b87796ee8a0ab26b7587ec30e8858e",
-    sha256 = "04a1751f94244307cebe695a69cc945f9387a80b0ef1af21394a490697c5c895",
+    urls = ["https://github.com/google/googletest/archive/4ec4cd23f486bf70efcc5d2caa40f24368f752e3.zip"],
+    strip_prefix = "googletest-4ec4cd23f486bf70efcc5d2caa40f24368f752e3",
+    sha256 = "de682ea824bfffba05b4e33b67431c247397d6175962534305136aa06f92e049",
 )
 
 # Google Benchmark library.
 http_archive(
     name = "com_google_benchmark",
-    urls = ["https://github.com/google/benchmark/archive/master.zip"],
-    strip_prefix = "benchmark-master",
+    urls = ["https://github.com/google/benchmark/archive/main.zip"],
+    strip_prefix = "benchmark-main",
     build_file = "@//third_party:benchmark.BUILD",
 )
 
@@ -242,6 +235,20 @@ http_archive(
     url = "https://github.com/opencv/opencv/releases/download/3.2.0/opencv-3.2.0-ios-framework.zip",
 )
 
+http_archive(
+    name = "stblib",
+    strip_prefix = "stb-b42009b3b9d4ca35bc703f5310eedc74f584be58",
+    sha256 = "13a99ad430e930907f5611325ec384168a958bf7610e63e60e2fd8e7b7379610",
+    urls = ["https://github.com/nothings/stb/archive/b42009b3b9d4ca35bc703f5310eedc74f584be58.tar.gz"],
+    build_file = "@//third_party:stblib.BUILD",
+    patches = [
+        "@//third_party:stb_image_impl.diff"
+    ],
+    patch_args = [
+        "-p1",
+    ],
+)
+
 # You may run setup_android.sh to install Android SDK and NDK.
 android_ndk_repository(
     name = "androidndk",
@@ -337,11 +344,11 @@ maven_install(
         "androidx.test.espresso:espresso-core:3.1.1",
         "com.github.bumptech.glide:glide:4.11.0",
         "com.google.android.material:material:aar:1.0.0-rc01",
-        "com.google.auto.value:auto-value:1.6.4",
-        "com.google.auto.value:auto-value-annotations:1.6.4",
-        "com.google.code.findbugs:jsr305:3.0.2",
-        "com.google.flogger:flogger-system-backend:0.3.1",
-        "com.google.flogger:flogger:0.3.1",
+        "com.google.auto.value:auto-value:1.8.1",
+        "com.google.auto.value:auto-value-annotations:1.8.1",
+        "com.google.code.findbugs:jsr305:latest.release",
+        "com.google.flogger:flogger-system-backend:latest.release",
+        "com.google.flogger:flogger:latest.release",
         "com.google.guava:guava:27.0.1-android",
         "com.google.guava:listenablefuture:1.0",
         "junit:junit:4.12",
@@ -369,9 +376,9 @@ http_archive(
 )
 
 # Tensorflow repo should always go after the other external dependencies.
-# 2021-04-30
-_TENSORFLOW_GIT_COMMIT = "5bd3c57ef184543d22e34e36cff9d9bea608e06d"
-_TENSORFLOW_SHA256= "9a45862834221aafacf6fb275f92b3876bc89443cbecc51be93f13839a6609f0"
+# 2021-06-07
+_TENSORFLOW_GIT_COMMIT = "700533808e6016dc458bb2eeecfca4babfc482ec"
+_TENSORFLOW_SHA256 = "b6edd7f4039bfc19f3e77594ecff558ba620091d0dc48181484b3d9085026126"
 http_archive(
     name = "org_tensorflow",
     urls = [

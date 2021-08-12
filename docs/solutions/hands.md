@@ -206,7 +206,7 @@ is not the case, please swap the handedness output in the application.
 
 Please first follow general [instructions](../getting_started/python.md) to
 install MediaPipe Python package, then learn more in the companion
-[Python Colab](#resources) and the following usage example.
+[Python Colab](#resources) and the usage example below.
 
 Supported configuration options:
 
@@ -220,13 +220,15 @@ import cv2
 import mediapipe as mp
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
+drawing_styles = mp.solutions.drawing_styles
 
 # For static images:
+IMAGE_FILES = []
 with mp_hands.Hands(
     static_image_mode=True,
     max_num_hands=2,
     min_detection_confidence=0.5) as hands:
-  for idx, file in enumerate(file_list):
+  for idx, file in enumerate(IMAGE_FILES):
     # Read an image, flip it around y-axis for correct handedness output (see
     # above).
     image = cv2.flip(cv2.imread(file), 1)
@@ -247,7 +249,9 @@ with mp_hands.Hands(
           f'{hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * image_height})'
       )
       mp_drawing.draw_landmarks(
-          annotated_image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+          annotated_image, hand_landmarks, mp_hands.HAND_CONNECTIONS,
+          drawing_styles.get_default_hand_landmark_style(),
+          drawing_styles.get_default_hand_connection_style())
     cv2.imwrite(
         '/tmp/annotated_image' + str(idx) + '.png', cv2.flip(annotated_image, 1))
 
@@ -277,7 +281,9 @@ with mp_hands.Hands(
     if results.multi_hand_landmarks:
       for hand_landmarks in results.multi_hand_landmarks:
         mp_drawing.draw_landmarks(
-            image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+            image, hand_landmarks, mp_hands.HAND_CONNECTIONS,
+            drawing_styles.get_default_hand_landmark_style(),
+            drawing_styles.get_default_hand_connection_style())
     cv2.imshow('MediaPipe Hands', image)
     if cv2.waitKey(5) & 0xFF == 27:
       break
